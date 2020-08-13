@@ -4,21 +4,23 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PushyClient
-    (
-
+    ( foo
+    , makePushyPostRequest
     ) where
 
 import           Control.Monad.Catch
 import           Data.Aeson
-import qualified Data.ByteString      as B
-import qualified Data.ByteString.Lazy as L
-import qualified Data.Text            as T
+import qualified Data.ByteString       as B
+import qualified Data.ByteString.Char8 as B8
+import qualified Data.ByteString.Lazy  as L
+import qualified Data.Text             as D
+import qualified Data.Text             as T
 import           Network.HTTP.Client
 import           Network.HTTP.Simple
 import           Network.HTTP.Types
 
 -- | Type to represent the body containing the message
-newtype BodyData = BodyData T.Text
+newtype BodyData = BodyData T.Text deriving (Show)
 
 instance ToJSON BodyData where
     toJSON (BodyData msg) = object ["message" .= msg]
@@ -26,22 +28,22 @@ instance ToJSON BodyData where
 -- | Type to represent the iOS notification settings
 data IosNotification = IosNotification
     { inBody  :: T.Text
-    , inBadge :: Int
+--    , inBadge :: Int
     , inSound :: T.Text
-    }
+    } deriving (Show)
 
 -- | Default iOS notification setting
 defaultIosNotificationSettings :: IosNotification
 defaultIosNotificationSettings =
     let inBody =  "Hello"
-        inBadge = 1
+--        inBadge = 1
         inSound = T.pack "ping.aiff"
     in IosNotification {..}
 
 instance ToJSON IosNotification where
     toJSON IosNotification {..} =
         object [ "body"  .= inBody
-               , "badge" .= inBadge
+  --             , "badge" .= inBadge
                , "sound" .= inSound
                ]
 
@@ -50,7 +52,7 @@ data PushyPostRequestBody = PushyPostRequestBody
     { to           :: T.Text
     , bodyData     :: BodyData
     , notification :: IosNotification
-    }
+    } deriving (Show)
 
 instance ToJSON PushyPostRequestBody where
     toJSON (PushyPostRequestBody to bodyData notification) =
@@ -96,7 +98,9 @@ constructPushyPostRequest apiKey recId msg = do
 -- | Datatype to represent possible results of pushy request
 data PushyResult =  SuccessfulRequest
                  | HttpLibError
-                 | FailureStatusCode Int
+                 | FailureStatusCode Request Int
+                 deriving (Show)
+
 
 -- | Datatype to represent possible error codes:
 -- data ErrorCode =  ErrorCode300
@@ -109,12 +113,21 @@ makePushyPostRequest :: B.ByteString -- ^ API key
                      -> T.Text -- ^ message to be posted
                      -> IO PushyResult
 makePushyPostRequest apiKey recId msg =
-    handle (\ (he :: HttpException) -> pure HttpLibError) $ do
-        hRes <- httpLBS $ constructPushyPostRequest apiKey recId msg
-        pure $ decodeRes (responseStatus hRes)
+    handle (\ (he :: HttpException) -> pure HttpLibError) $
+    let hReq = constructPushyPostRequest apiKey recId msg
+    in do
+        hRes <- httpLBS hReq
+        pure $ decodeRes hReq (responseStatus hRes)
   where
-    decodeRes :: Status -> PushyResult
-    decodeRes s =
+    decodeRes :: Request -> Status -> PushyResult
+    decodeRes r s =
         if  200 <= statusCode s && statusCode s < 300
         then SuccessfulRequest
-        else FailureStatusCode $ statusCode s
+        else FailureStatusCode r (statusCode s)
+
+foo :: String -> String -> String -> IO PushyResult
+foo apiKey recId msg =
+    let byteStringApiKey = B8.pack apiKey
+        textRecId = D.pack recId
+        textMsg = D.pack msg
+    in makePushyPostRequest byteStringApiKey textRecId textMsg
