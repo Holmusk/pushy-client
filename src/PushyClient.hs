@@ -6,6 +6,7 @@
 module PushyClient
     ( foo
     , makePushyPostRequest
+    , viewRequestBody
     ) where
 
 import           Control.Monad.Catch
@@ -23,7 +24,7 @@ import           Network.HTTP.Types
 newtype BodyData = BodyData T.Text deriving (Show)
 
 instance ToJSON BodyData where
-    toJSON (BodyData msg) = object ["message" .= msg]
+    toJSON (BodyData msg) = object ["message" .= toJSON msg]
 
 -- | Type to represent the iOS notification settings
 data IosNotification = IosNotification
@@ -56,8 +57,8 @@ data PushyPostRequestBody = PushyPostRequestBody
 
 instance ToJSON PushyPostRequestBody where
     toJSON (PushyPostRequestBody to bodyData notification) =
-        object [ "to" .= to
-               , "body" .= toJSON bodyData
+        object [ "to" .= toJSON to
+               , "data" .= toJSON bodyData
                , "notification" .= toJSON notification
                ]
 
@@ -71,6 +72,11 @@ constructPushyPostRequestBody recId msg =
         bodyData = BodyData msg
         notification = defaultIosNotificationSettings
     in PushyPostRequestBody{..}
+
+viewRequestBody :: String -> String -> L.ByteString
+viewRequestBody recId msg =
+  let parsedReqBody = constructPushyPostRequestBody (D.pack recId) (D.pack msg)
+  in encode parsedReqBody
 
 -- | Function to contruct the Pushy HTTP POST request
 constructPushyPostRequest :: B.ByteString -- ^ API key
@@ -98,7 +104,7 @@ constructPushyPostRequest apiKey recId msg = do
 -- | Datatype to represent possible results of pushy request
 data PushyResult =  SuccessfulRequest
                  | HttpLibError
-                 | FailureStatusCode Request Int
+                 | FailureStatusCode Request Int L.ByteString
                  deriving (Show)
 
 
@@ -117,13 +123,13 @@ makePushyPostRequest apiKey recId msg =
     let hReq = constructPushyPostRequest apiKey recId msg
     in do
         hRes <- httpLBS hReq
-        pure $ decodeRes hReq (responseStatus hRes)
+        pure $ decodeRes hReq (responseStatus hRes) (responseBody hRes)
   where
-    decodeRes :: Request -> Status -> PushyResult
-    decodeRes r s =
+    decodeRes :: Request -> Status -> L.ByteString -> PushyResult
+    decodeRes r s b =
         if  200 <= statusCode s && statusCode s < 300
         then SuccessfulRequest
-        else FailureStatusCode r (statusCode s)
+        else FailureStatusCode r (statusCode s) b
 
 foo :: String -> String -> String -> IO PushyResult
 foo apiKey recId msg =
