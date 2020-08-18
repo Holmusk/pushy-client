@@ -29,6 +29,7 @@ source-repository head
 library
   exposed-modules: PushyClient
                  , Types.PushyRequest
+                 , Types.PushyResponse
   hs-source-dirs:  src
   build-depends:   base >=4.7 && <5
                  , aeson

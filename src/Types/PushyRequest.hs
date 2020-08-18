@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Types.PushyRequest
-    ( BodyData
+    ( BodyData (..)
     , IosNotification (..)
     , defaultIosNotification
     , PushyPostRequestBody (..)
@@ -98,16 +98,17 @@ data PushyPostRequestBody = PushyPostRequestBody
       -- | The payload to be sent to devices
     , pprbBodyData         :: BodyData -- TODO: This should be a Map String String
 
-    -- | How long the push notification should be kept alive
-    , pprbTimeToLive       :: Maybe Int
+    -- | How long the push notification should be kept alive; the default is set to a month
+    -- with 30 days
+    , pprbTimeToLive       :: Int
 
     -- | When set to 'true', invokes app's notification handler even if app is running in
-    -- the background
-    , pprbContentAvailable :: Maybe Bool
+    -- the background; default is 'False'
+    , pprbContentAvailable :: Bool
 
     -- | When set to 'true', the app's notification service extension is invoked even if
-    -- the app is running in the background
-    , pprbMutableContent   :: Maybe Bool
+    -- the app is running in the background; default is 'False'
+    , pprbMutableContent   :: Bool
 
     -- | Notification options for iOS
     , pprbNotification     :: Maybe IosNotification
@@ -129,8 +130,8 @@ defaultPushyPostRequestBody :: T.Text -- ^ The unique device token must be provi
 defaultPushyPostRequestBody deviceToken body =
     let pprbTo = deviceToken
         pprbBodyData = body
-        pprbTimeToLive = Nothing
-        pprbContentAvailable = Nothing
-        pprbMutableContent = Nothing
+        pprbTimeToLive = 2592000
+        pprbContentAvailable = False
+        pprbMutableContent = False
         pprbNotification = Nothing
     in PushyPostRequestBody{..}
