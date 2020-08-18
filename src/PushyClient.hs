@@ -1,4 +1,6 @@
-{-# LANGUAGE MultiWayIf          #-}
+-- | Types to capture the request schema for Pushy's external push notification
+-- API; see https://pushy.me/docs/api/send-notifications for more information
+
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -29,7 +31,7 @@ instance ToJSON BodyData where
 -- | Type to represent the iOS notification settings
 data IosNotification = IosNotification
     { inBody  :: T.Text
---    , inBadge :: Int
+    , inBadge :: Int
     , inSound :: T.Text
     } deriving (Show)
 
@@ -37,16 +39,16 @@ data IosNotification = IosNotification
 defaultIosNotificationSettings :: IosNotification
 defaultIosNotificationSettings =
     let inBody =  "Hello"
---        inBadge = 1
+        inBadge = 1
         inSound = T.pack "ping.aiff"
     in IosNotification {..}
 
 instance ToJSON IosNotification where
     toJSON IosNotification {..} =
-        object [ "body"  .= inBody
-  --             , "badge" .= inBadge
-               , "sound" .= inSound
-               ]
+      object [ "body"  .= inBody
+             , "badge" .= inBadge
+             , "sound" .= inSound
+             ]
 
 -- | Type to represent the body of an HTTP POST request to the Pushy API
 data PushyPostRequestBody = PushyPostRequestBody
