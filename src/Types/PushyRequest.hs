@@ -11,13 +11,8 @@ module Types.PushyRequest
     ) where
 
 import           Data.Aeson
-import           Data.Map
 
-import qualified Data.ByteString       as B
-import qualified Data.ByteString.Char8 as B8
-import qualified Data.ByteString.Lazy  as L
-import qualified Data.Text             as D
-import qualified Data.Text             as T
+import qualified Data.Text  as T
 
 
 -- | Type to represent the body containing the message
@@ -73,7 +68,9 @@ instance ToJSON IosNotification where
                , "title_loc_args" .= inTitleLocArgs
                ]
 
--- | Default iOS notification setting
+-- | Default iOS notification setting. Use this to build a custom 'IosNotification' value.
+-- The iOS notification setting, if at all added to the 'PushyPostRequestBody' value,
+-- must contain text that constitutes the body of the PN.
 defaultIosNotification :: T.Text -> IosNotification
 defaultIosNotification body =
     let inBody =  body
@@ -124,6 +121,9 @@ instance ToJSON PushyPostRequestBody where
                , "notification"      .= pprbNotification
                ]
 
+-- | The default value for a pushy post request body. Use this to construct custom
+-- Pushy post request bodies. Note that a 'PushyPostRequestBody' value must always have
+-- device token and a message.
 defaultPushyPostRequestBody :: T.Text -- ^ The unique device token must be provided
                             -> BodyData -- ^ The body must be provided
                             -> PushyPostRequestBody

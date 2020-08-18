@@ -10,16 +10,11 @@ module Types.PushyResponse
     ) where
 
 import           Data.Aeson
-import           Data.Map
 import           Network.HTTP.Client
-import           Network.HTTP.Simple
 import           Network.HTTP.Types
 
-import qualified Data.ByteString       as B
-import qualified Data.ByteString.Char8 as B8
-import qualified Data.ByteString.Lazy  as L
-import qualified Data.Text             as D
-import qualified Data.Text             as T
+import qualified Data.ByteString.Lazy as L
+import qualified Data.Text            as T
 
 
 -- | Newtype wrapping the ID of a PN that was succesfully sent by Pushy
@@ -34,10 +29,10 @@ data FailureInfo = FailureInfo
     {
       -- | Specific error codes provided by Pushy;
       -- see the documentation for more info: https://pushy.me/docs/api/send-notifications
-      prfPushyErrorCode        :: T.Text
+      fiPushyErrorCode        :: T.Text
 
       -- | A detailed description of the exact error; also provided by the Pushy API
-    , prfPushyErrorDescription :: T.Text
+    , fiPushyErrorDescription :: T.Text
     } deriving (Show)
 
 instance FromJSON FailureInfo where
@@ -47,15 +42,21 @@ instance FromJSON FailureInfo where
 
 -- | Sum type to capture possible results of the pushy push notification
 data PushyResult =
-  -- | Represents HTTP responses with a 200 status code; wraps the unique ID of the PN
-    PushyResultSuccesful Status SuccessInfo
+  -- | Represents HTTP responses with a 200 status code; constructor takes the HTTP status
+  -- code and the unique ID of the PN as arguments
+    PushyResultSuccesfulRequest Status SuccessInfo
 
-    -- | Represents HTTP response with a 300 / 400 / 500 status code; wraps
-    -- the HTTP status code and the failure info of type 'FailureInfo'
-    | PushyResultHttpFailure Status FailureInfo
+    -- | Represents HTTP response with a 300 / 400 / 500 status code; constructor takes
+    -- the HTTP status code and the failure info of type 'FailureInfo' as arguments
+    | PushyResultFailedRequest Status FailureInfo
 
-    -- | Represents other possible failures
-    | PushyResultOtherFailure T.Text
+    -- | Represents failure to decode response body; constructor takes the HTTP status code
+    -- and the raw response body as arguments
+    | PushyResultResBodyFailedDecode Status L.ByteString
+
+    -- | Represents an Network.HTTP error; constructor takes the particular 'HttpExcpetion'
+    -- and a 'Text' message as argument
+    | PushyResultHttpLibraryError HttpException T.Text
     deriving (Show)
 
 -- | Function to decode the Pushy API HTTP response
@@ -65,8 +66,8 @@ decodePushyResponse res =
         resBody = responseBody res
     in if statusCode resStat == 200
        then case decode @SuccessInfo resBody of
-                Just info -> PushyResultSuccesful resStat info
-                Nothing   -> PushyResultOtherFailure "Failed to parse response"
+                Just info -> PushyResultSuccesfulRequest resStat info
+                Nothing   -> PushyResultResBodyFailedDecode resStat resBody
        else case decode @FailureInfo resBody of
-                Just info -> PushyResultHttpFailure resStat info
-                Nothing   -> PushyResultOtherFailure "Failed to parse response"
+                Just info -> PushyResultFailedRequest resStat info
+                Nothing   -> PushyResultResBodyFailedDecode resStat resBody
