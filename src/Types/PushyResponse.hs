@@ -46,7 +46,7 @@ data PushyResult =
   -- code and the unique ID of the PN as arguments
     PushyResultSuccesfulRequest Status SuccessInfo
 
-    -- | Represents HTTP response with a 300 / 400 / 500 status code; constructor takes
+    -- | Represents HTTP response with a 3xx / 4xx / 5xx status code; constructor takes
     -- the HTTP status code and the failure info of type 'FailureInfo' as arguments
     | PushyResultFailedRequest Status FailureInfo
 
