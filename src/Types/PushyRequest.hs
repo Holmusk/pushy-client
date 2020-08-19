@@ -15,12 +15,6 @@ import           Data.Aeson
 import qualified Data.Text  as T
 
 
--- | Type to represent the body containing the message
-newtype BodyData = BodyData T.Text deriving (Show)
-
-instance ToJSON BodyData where
-    toJSON (BodyData msg) = object ["message" .= toJSON msg]
-
 -- | Type to represent the iOS notification settings;
 -- see https://pushy.me/docs/api/send-notifications for the complete documentation
 data IosNotification = IosNotification
@@ -85,15 +79,17 @@ defaultIosNotification body =
     in IosNotification {..}
 
 
--- | Type to represent the body of an HTTP POST request to the Pushy API;
---  see https://pushy.me/docs/api/send-notifications for the complete documentation
-data PushyPostRequestBody = PushyPostRequestBody
+-- | Type to represent the body of an HTTP POST request to the Pushy API. Note that this
+-- type is parameterized by the type of the payload, since Pushy supports arbitrary JSON
+-- objects as JSON bodies. The type of the payload should have a 'ToJSON' instance.
+-- See https://pushy.me/docs/api/send-notifications for the complete documentation
+data PushyPostRequestBody payload = PushyPostRequestBody
     {
       -- | The unique token associated with the device to which the notification is sent
       pprbTo               :: T.Text
 
       -- | The payload to be sent to devices
-    , pprbBodyData         :: BodyData -- TODO: This should be a Map String String
+    , pprbBodyData         :: payload
 
     -- | How long the push notification should be kept alive; the default is set to a month
     -- with 30 days
@@ -111,10 +107,10 @@ data PushyPostRequestBody = PushyPostRequestBody
     , pprbNotification     :: Maybe IosNotification
     } deriving (Show)
 
-instance ToJSON PushyPostRequestBody where
+instance (ToJSON payload) => ToJSON (PushyPostRequestBody payload) where
     toJSON PushyPostRequestBody{..} =
         object [ "to"                .= pprbTo
-               , "data"              .= pprbBodyData
+               , "data"              .= toJSON pprbBodyData
                , "time_to_live"      .= pprbTimeToLive
                , "content_available" .= pprbContentAvailable
                , "mutable_content"   .= pprbMutableContent
@@ -124,6 +120,14 @@ instance ToJSON PushyPostRequestBody where
 -- | The default value for a pushy post request body. Use this to construct custom
 -- Pushy post request bodies. Note that a 'PushyPostRequestBody' value must always have
 -- device token and a message.
+
+-- | Type to represent the body containing the message
+newtype BodyData = BodyData T.Text deriving (Show)
+
+instance ToJSON BodyData where
+    toJSON (BodyData msg) = object ["message" .= toJSON msg]
+
+
 defaultPushyPostRequestBody :: T.Text -- ^ The unique device token must be provided
                             -> BodyData -- ^ The body must be provided
                             -> PushyPostRequestBody
