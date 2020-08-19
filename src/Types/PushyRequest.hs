@@ -3,8 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Types.PushyRequest
-    ( BodyData (..)
-    , IosNotification (..)
+    ( IosNotification (..)
     , defaultIosNotification
     , PushyPostRequestBody (..)
     , defaultPushyPostRequestBody
@@ -120,22 +119,16 @@ instance (ToJSON payload) => ToJSON (PushyPostRequestBody payload) where
 -- | The default value for a pushy post request body. Use this to construct custom
 -- Pushy post request bodies. Note that a 'PushyPostRequestBody' value must always have
 -- device token and a message.
-
--- | Type to represent the body containing the message
-newtype BodyData = BodyData T.Text deriving (Show)
-
-instance ToJSON BodyData where
-    toJSON (BodyData msg) = object ["message" .= toJSON msg]
-
-
-defaultPushyPostRequestBody :: T.Text -- ^ The unique device token must be provided
-                            -> BodyData -- ^ The body must be provided
-                            -> PushyPostRequestBody
+defaultPushyPostRequestBody :: (ToJSON payload)
+                            => T.Text -- ^ The unique device token must be provided
+                            -> payload -- ^ The payload of arbitrary type
+                            -> PushyPostRequestBody payload
 defaultPushyPostRequestBody deviceToken body =
-    let pprbTo = deviceToken
-        pprbBodyData = body
-        pprbTimeToLive = 2592000
-        pprbContentAvailable = False
-        pprbMutableContent = False
-        pprbNotification = Nothing
-    in PushyPostRequestBody{..}
+    PushyPostRequestBody
+        { pprbTo = deviceToken
+        , pprbBodyData = body
+        , pprbTimeToLive = 2592000
+        , pprbContentAvailable = False
+        , pprbMutableContent = False
+        , pprbNotification = Nothing
+        }
