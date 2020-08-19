@@ -119,8 +119,7 @@ instance (ToJSON payload) => ToJSON (PushyPostRequestBody payload) where
 -- | The default value for a pushy post request body. Use this to construct custom
 -- Pushy post request bodies. Note that a 'PushyPostRequestBody' value must always have
 -- device token and a message.
-defaultPushyPostRequestBody :: (ToJSON payload)
-                            => T.Text -- ^ The unique device token must be provided
+defaultPushyPostRequestBody :: T.Text -- ^ The unique device token must be provided
                             -> payload -- ^ The payload of arbitrary type
                             -> PushyPostRequestBody payload
 defaultPushyPostRequestBody deviceToken body =

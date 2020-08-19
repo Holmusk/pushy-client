@@ -28,7 +28,7 @@ source-repository head
 
 library
   exposed-modules: PushyClient
-                 , MakeMockRequest
+                 , MockRequest
                  , Types.PushyRequest
                  , Types.PushyResponse
   hs-source-dirs:  src
