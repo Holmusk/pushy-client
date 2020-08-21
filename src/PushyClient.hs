@@ -9,12 +9,9 @@ module PushyClient
     ) where
 
 
-import           Types.PushyRequest    (IosNotification (..),
-                                        PushyPostRequestBody (..),
-                                        defaultIosNotification,
-                                        defaultPushyPostRequestBody)
-import           Types.PushyResponse   (FailureInfo (..), PushyResult (..),
-                                        SuccessInfo (..), decodePushyResponse)
+import           Types.PushyRequest    (PushyPostRequestBody (..))
+import           Types.PushyResponse   (PushyResult (..),
+                                        decodePushyResponse)
 
 import           Control.Monad.Catch
 import           Data.Aeson
@@ -23,8 +20,6 @@ import           Network.HTTP.Simple
 import           Network.HTTP.Types
 
 import qualified Data.ByteString       as B
-import qualified Data.ByteString.Char8 as B8
-import qualified Data.Text             as D
 
 
 -- | Function to contruct the Pushy HTTP POST request

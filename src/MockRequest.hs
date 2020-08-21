@@ -9,7 +9,6 @@ import           Types.PushyRequest    (defaultPushyPostRequestBody)
 import           Types.PushyResponse   (PushyResult)
 
 import           Data.Aeson
-import qualified Data.ByteString       as B
 import qualified Data.ByteString.Char8 as B8
 import qualified Data.Text             as D
 
