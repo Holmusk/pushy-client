@@ -42,19 +42,12 @@ library
                  , Types.PushyResponse
   hs-source-dirs:  src
   build-depends:   aeson
-                 , aeson-casing
                  , bytestring ^>= 0.10
-                 , containers
-                 , data-default-class
                  , exceptions ^>= 0.10.4
                  , http-client
                  , http-conduit
                  , http-types
-                 , lens
-                 , scientific
-                 , text ^>= 1.2
-                 , time
-  
+                 , text ^>= 1.2  
 
 test-suite pushy-client-test
   import: common-options

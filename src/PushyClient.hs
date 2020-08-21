@@ -22,7 +22,7 @@ import           Network.HTTP.Types
 import qualified Data.ByteString       as B
 
 
--- | Function to contruct the Pushy HTTP POST request
+-- | Function to construct the Pushy HTTP POST request
 constructPushyPostRequest :: (ToJSON payload)
                           => B.ByteString -- ^ API key
                           -> PushyPostRequestBody payload -- ^ The body of the post request
