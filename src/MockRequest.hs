@@ -4,13 +4,13 @@ module MockRequest
     ( makeMockPushyRequest
     ) where
 
-import           PushyClient           (makePushyPostRequest)
-import           Types.PushyRequest    (defaultPushyPostRequestBody)
-import           Types.PushyResponse   (PushyResult)
+import           PushyClient                     (makePushyPostRequest)
+import           PushyClient.Types.PushyRequest  (defaultPushyPostRequestBody)
+import           PushyClient.Types.PushyResponse (PushyResult)
 
 import           Data.Aeson
-import qualified Data.ByteString.Char8 as B8
-import qualified Data.Text             as D
+import qualified Data.ByteString.Char8           as B8
+import qualified Data.Text                       as D
 
 
 

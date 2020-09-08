@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
 
-module Types.PushyResponse
+module PushyClient.Types.PushyResponse
     ( SuccessInfo (..)
     , FailureInfo (..)
     , PushyResult (..)

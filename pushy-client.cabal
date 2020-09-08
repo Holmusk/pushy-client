@@ -38,8 +38,8 @@ library
   import: common-options
   exposed-modules: PushyClient
                  , MockRequest
-                 , Types.PushyRequest
-                 , Types.PushyResponse
+                 , PushyClient.Types.PushyRequest
+                 , PushyClient.Types.PushyResponse
   hs-source-dirs:  src
   build-depends:   aeson
                  , bytestring ^>= 0.10
