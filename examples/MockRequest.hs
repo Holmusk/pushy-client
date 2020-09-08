@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module MockRequest
-    ( makeMockPushyRequest
-    ) where
+module Main where
 
 import           PushyClient                     (makePushyPostRequest)
 import           PushyClient.Types.PushyRequest  (defaultPushyPostRequestBody)
@@ -35,3 +33,14 @@ makeMockPushyRequest apiKey deviceToken msg =
         textMsg = D.pack msg
         pprBody = defaultPushyPostRequestBody textDeviceToken $ BodyData textMsg
     in makePushyPostRequest byteStringApiKey pprBody
+
+main :: IO ()
+main = do
+    _ <- putStrLn "Enter Pushy API key: "
+    apiKey <- getLine
+    _ <- putStrLn "Enter device token: "
+    deviceToken <- getLine
+    _ <- putStrLn "Enter message to send: "
+    msg <- getLine
+    pushyResult <-  makeMockPushyRequest apiKey deviceToken msg
+    putStrLn $ show pushyResult
