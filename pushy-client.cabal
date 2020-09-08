@@ -76,5 +76,4 @@ executable example-mock-request
                  , bytestring ^>= 0.10
                  , pushy-client
                  , text ^>= 1.2
-  ghc-options:       -Wall
   default-language:  Haskell2010

@@ -36,11 +36,11 @@ makeMockPushyRequest apiKey deviceToken msg =
 
 main :: IO ()
 main = do
-    _ <- putStrLn "Enter Pushy API key: "
+    putStrLn "Enter Pushy API key: "
     apiKey <- getLine
-    _ <- putStrLn "Enter device token: "
+    putStrLn "Enter device token: "
     deviceToken <- getLine
-    _ <- putStrLn "Enter message to send: "
+    putStrLn "Enter message to send: "
     msg <- getLine
     pushyResult <-  makeMockPushyRequest apiKey deviceToken msg
     putStrLn $ show pushyResult
