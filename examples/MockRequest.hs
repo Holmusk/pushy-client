@@ -1,16 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module MockRequest
-    ( makeMockPushyRequest
-    ) where
+module Main where
 
-import           PushyClient           (makePushyPostRequest)
-import           Types.PushyRequest    (defaultPushyPostRequestBody)
-import           Types.PushyResponse   (PushyResult)
+import           PushyClient                     (makePushyPostRequest)
+import           PushyClient.Types.PushyRequest  (defaultPushyPostRequestBody)
+import           PushyClient.Types.PushyResponse (PushyResult)
 
 import           Data.Aeson
-import qualified Data.ByteString.Char8 as B8
-import qualified Data.Text             as D
+import qualified Data.ByteString.Char8           as B8
+import qualified Data.Text                       as D
 
 
 
@@ -35,3 +33,14 @@ makeMockPushyRequest apiKey deviceToken msg =
         textMsg = D.pack msg
         pprBody = defaultPushyPostRequestBody textDeviceToken $ BodyData textMsg
     in makePushyPostRequest byteStringApiKey pprBody
+
+main :: IO ()
+main = do
+    putStrLn "Enter Pushy API key: "
+    apiKey <- getLine
+    putStrLn "Enter device token: "
+    deviceToken <- getLine
+    putStrLn "Enter message to send: "
+    msg <- getLine
+    pushyResult <-  makeMockPushyRequest apiKey deviceToken msg
+    putStrLn $ show pushyResult

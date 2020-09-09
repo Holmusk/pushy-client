@@ -9,9 +9,9 @@ module PushyClient
     ) where
 
 
-import           Types.PushyRequest    (PushyPostRequestBody (..))
-import           Types.PushyResponse   (PushyResult (..),
-                                        decodePushyResponse)
+import           PushyClient.Types.PushyRequest  (PushyPostRequestBody (..))
+import           PushyClient.Types.PushyResponse (PushyResult (..),
+                                                  decodePushyResponse)
 
 import           Control.Monad.Catch
 import           Data.Aeson
@@ -19,7 +19,7 @@ import           Network.HTTP.Client
 import           Network.HTTP.Simple
 import           Network.HTTP.Types
 
-import qualified Data.ByteString       as B
+import qualified Data.ByteString                 as B
 
 
 -- | Function to construct the Pushy HTTP POST request

@@ -2,7 +2,7 @@
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Types.PushyRequest
+module PushyClient.Types.PushyRequest
     ( IosNotification (..)
     , defaultIosNotification
     , PushyPostRequestBody (..)

@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
 
-module Types.PushyResponse
+module PushyClient.Types.PushyResponse
     ( SuccessInfo (..)
     , FailureInfo (..)
     , PushyResult (..)
@@ -44,7 +44,7 @@ instance FromJSON FailureInfo where
 data PushyResult =
   -- | Represents HTTP responses with a 200 status code; constructor takes the HTTP status
   -- code and the unique ID of the PN as arguments
-    PushyResultSuccesfulRequest Status SuccessInfo
+    PushyResultSuccessfulRequest Status SuccessInfo
 
     -- | Represents HTTP response with a 3xx / 4xx / 5xx status code; constructor takes
     -- the HTTP status code and the failure info of type 'FailureInfo' as arguments
@@ -66,7 +66,7 @@ decodePushyResponse res =
         resBody = responseBody res
     in if statusCode resStat == 200
        then case decode @SuccessInfo resBody of
-                Just info -> PushyResultSuccesfulRequest resStat info
+                Just info -> PushyResultSuccessfulRequest resStat info
                 Nothing   -> PushyResultResBodyFailedDecode resStat resBody
        else case decode @FailureInfo resBody of
                 Just info -> PushyResultFailedRequest resStat info
