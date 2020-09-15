@@ -22,26 +22,26 @@ data IosNotification = IosNotification
       inBody         :: T.Text
 
       -- | Number to display as badge of the app icon
-    , inBadge        :: Maybe Int
+    , inBadge        :: Int
 
       -- | Name of soundfile that should be played when a PN is received
-    , inSound        :: Maybe T.Text
+    , inSound        :: T.Text
 
       -- | String describing pupose of notification
-    , inTitle        :: Maybe T.Text
+    , inTitle        :: T.Text
 
       -- | String used to determine custom notification UI
-    , inCategory     :: Maybe T.Text
+    , inCategory     :: T.Text
 
     -- | Localization key present in app's 'Localizable.strings' file
-    , inLocKey       :: Maybe T.Text
+    , inLocKey       :: T.Text
 
     -- | Replacement strings to subsitute in place of the '%@' placeholders of the
     -- localization string
     , inLocArgs      :: [T.Text]
 
     -- | Localization key present in app's 'Localizable.strings' file
-    , inTitleLocKey  :: Maybe T.Text
+    , inTitleLocKey  :: T.Text
 
     -- | Replacement strings to subsitute in place of the '%@' placeholders of the
     -- localization string
@@ -62,18 +62,16 @@ instance ToJSON IosNotification where
                ]
 
 -- | Default iOS notification setting. Use this to build a custom 'IosNotification' value.
--- The iOS notification setting, if at all added to the 'PushyPostRequestBody' value,
--- must contain text that constitutes the body of the PN.
-defaultIosNotification :: T.Text -> IosNotification
-defaultIosNotification body =
-    let inBody =  body
-        inBadge = Nothing
-        inSound = Nothing
-        inTitle = Nothing
-        inCategory = Nothing
-        inLocKey = Nothing
+defaultIosNotification :: IosNotification
+defaultIosNotification  =
+    let inBody = ""
+        inBadge = 1
+        inSound = "ping.aiff"
+        inTitle = ""
+        inCategory = ""
+        inLocKey = ""
         inLocArgs = []
-        inTitleLocKey = Nothing
+        inTitleLocKey = ""
         inTitleLocArgs = []
     in IosNotification {..}
 
@@ -103,7 +101,7 @@ data PushyPostRequestBody payload = PushyPostRequestBody
     , pprbMutableContent   :: Bool
 
     -- | Notification options for iOS
-    , pprbNotification     :: Maybe IosNotification
+    , pprbIosNotification  :: Maybe IosNotification
     } deriving (Show)
 
 instance (ToJSON payload) => ToJSON (PushyPostRequestBody payload) where
@@ -113,12 +111,12 @@ instance (ToJSON payload) => ToJSON (PushyPostRequestBody payload) where
                , "time_to_live"      .= pprbTimeToLive
                , "content_available" .= pprbContentAvailable
                , "mutable_content"   .= pprbMutableContent
-               , "notification"      .= pprbNotification
+               , "notification"      .= pprbIosNotification
                ]
 
 -- | The default value for a pushy post request body. Use this to construct custom
--- Pushy post request bodies. Note that a 'PushyPostRequestBody' value must always have
--- device token and a message.
+-- Pushy post request bodies. Note that the @pprbNotification@ field must be configured
+-- if your application is run on iOS devices.
 defaultPushyPostRequestBody :: T.Text -- ^ The unique device token must be provided
                             -> payload -- ^ The payload of arbitrary type
                             -> PushyPostRequestBody payload
@@ -129,5 +127,5 @@ defaultPushyPostRequestBody deviceToken body =
         , pprbTimeToLive = 2592000
         , pprbContentAvailable = False
         , pprbMutableContent = False
-        , pprbNotification = Nothing
+        , pprbIosNotification = Just defaultIosNotification
         }
